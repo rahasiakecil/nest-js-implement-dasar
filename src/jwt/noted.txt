@@ -1,0 +1,48 @@
+// import { Injectable, UnauthorizedException } from '@nestjs/common';
+// import { AuthGuard } from '@nestjs/passport';
+
+// @Injectable()
+// export class JwtAuthGuard extends AuthGuard('jwt') {
+//     handleRequest(err: any, user: any) {
+//         if (err || !user) {
+//             throw new UnauthorizedException('gabisa brody!'); // Pesan kustom
+//         }
+//         return user;
+//     }
+// }
+
+
+import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { JwtService } from '@nestjs/jwt';
+
+@Injectable()
+export class JwtAuthGuard implements CanActivate {
+    constructor(
+        private readonly jwtService: JwtService,
+        private readonly reflector : Reflector
+    ) {}
+
+    canActivate(context: ExecutionContext): boolean {
+        const request = context.switchToHttp().getRequest();
+        const noJwt = this.reflector.get<boolean>('noJwt', context.getHandler());
+
+        if (noJwt) {
+            return true; // Lewati pemeriksaan JWT
+        }
+        //PERIKSA TOKEN
+        const token = request.headers['authorization']?.split(' ')[1]; // Ambil token dari header
+
+        if (!token) {
+            throw new UnauthorizedException('No token provided');
+        }
+
+        try {
+        const user = this.jwtService.verify(token); // Verifikasi token
+        request.user = user; // Simpan informasi pengguna di request
+            return true;
+        } catch (error) {
+            throw new UnauthorizedException('Invalid token');
+        }
+    }
+}
