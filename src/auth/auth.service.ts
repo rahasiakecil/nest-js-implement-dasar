@@ -5,6 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { payloadAuthDto } from './dto/payloadAuth.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { verifyPasswordJobs } from './jobs/verifyPasswordUserJobs';
+import { refreshTokenAuthDto } from './dto/refreshTokenAuth.dto';
 
 @Injectable()
 export class AuthService {
@@ -55,14 +56,14 @@ export class AuthService {
         }
     }
 
-    async refreshToken(sednRefreshToken: string): Promise <{
+    async refreshToken(body: refreshTokenAuthDto): Promise <{
         success: boolean,
         status: number,
         message: string,
         data:any
     }>{
         try {
-            const data = this.jwtService.verify(sednRefreshToken);
+            const data = this.jwtService.verify(body.refresh_token);
             const payload = {
                 username: data.username,
                 fullname: data.fullname

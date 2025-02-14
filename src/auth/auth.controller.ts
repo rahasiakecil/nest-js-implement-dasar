@@ -2,8 +2,11 @@ import { Body, Controller, Get, Post, UnauthorizedException, ValidationPipe } fr
 import { AuthService } from './auth.service';
 import { loginAuthDto } from './dto/login.dto';
 import { NoJwt } from 'src/decorators/no-jwt.decorator';
+import { ApiExcludeController, ApiExcludeEndpoint, ApiTags } from '@nestjs/swagger';
+import { refreshTokenAuthDto } from './dto/refreshTokenAuth.dto';
 
 // @NoJwt()//BISA DI PASANG DI CONTROLLER UNTUK ALL ENDPOINT
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
     constructor(
@@ -12,6 +15,7 @@ export class AuthController {
 
     @NoJwt() // DI PASANG DI ENDPOINT TERTENTU
     @Post('login')
+    @ApiExcludeEndpoint()
     async login(
         @Body(new ValidationPipe()) body:loginAuthDto
     ){
@@ -25,9 +29,9 @@ export class AuthController {
     @NoJwt()
     @Post('refresh')
     async refresh(
-        @Body() body:{refresh_token: string}
+        @Body(new ValidationPipe()) body:refreshTokenAuthDto
     ){
-        const data = await this.authservice.refreshToken(body.refresh_token);
+        const data = await this.authservice.refreshToken(body);
         if(!data){
             throw new UnauthorizedException();
         }
