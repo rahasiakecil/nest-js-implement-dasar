@@ -7,6 +7,7 @@ import { refreshTokenAuthDto } from './dto/refreshTokenAuth.dto';
 
 // @NoJwt()//BISA DI PASANG DI CONTROLLER UNTUK ALL ENDPOINT
 @ApiTags('Auth')
+// @ApiExcludeController() //AGAR SEMUA CONTROLLER TIDAK MUNCUL DI SWAGGER
 @Controller('auth')
 export class AuthController {
     constructor(
@@ -15,7 +16,7 @@ export class AuthController {
 
     @NoJwt() // DI PASANG DI ENDPOINT TERTENTU
     @Post('login')
-    @ApiExcludeEndpoint()
+    @ApiExcludeEndpoint()//AGAR TIDAK TAMPIL DI SWAGGER
     async login(
         @Body(new ValidationPipe()) body:loginAuthDto
     ){
